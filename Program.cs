@@ -9,23 +9,41 @@ public static class Program
 {
     public static void Main()
     {
-        var whitePlayer = new Player("White Player", Color.White);
-        var blackPlayer = new Player("Black Player", Color.Black);
+        Console.WriteLine("========= Console Chess =========");
+        Console.Write("Enter name for White Player: ");
 
-        var players = new Dictionary<IPlayer, Color>
+        var whiteName = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(whiteName))
+        {
+            whiteName = "White Player";
+        }
+        
+        Console.Write("Enter name for Black Player: ");
+
+        var blackName = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(blackName))
+        {
+            blackName = "Black Player";
+        }
+
+        var whitePlayer = new Player(whiteName, Color.White);
+        var blackPlayer = new Player(blackName, Color.Black);
+
+                var players = new Dictionary<IPlayer, Color>
         {
             { whitePlayer, Color.White },
             { blackPlayer, Color.Black }
         };
-
+        
         var emptyBoard = CreateEmptyBoard();
         var game = new ChessGameService(emptyBoard, players, GameStatus.NotStarted);
 
         game.StartGame();
-
-        Console.WriteLine("=== Console Chess ===");
+        Console.WriteLine("============= RULES =============");
         Console.WriteLine("Enter moves like: e2 e4");
-        Console.WriteLine("Type 'resign' to resign, 'quit' to exit.");
+        Console.WriteLine("Type 'resign' to resign.");
+        Console.WriteLine("Type 'quit' to exit.");
+        Console.WriteLine("=================================");
 
         RunGameLoop(game);
     }

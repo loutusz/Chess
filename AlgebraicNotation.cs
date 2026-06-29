@@ -26,8 +26,6 @@ public static class AlgebraicNotation
         return new Position(row, column);
     }
 
-    // Converts a Position back into algebraic notation, e.g. for messages
-    // like "Moved e2 to e4".
     public static string ToAlgebraic(Position position)
     {
         var file = (char)('a' + position.Column);
