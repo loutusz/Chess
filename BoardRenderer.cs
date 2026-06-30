@@ -31,18 +31,18 @@ public static class BoardRenderer
     {
         return (piece.Type, piece.Color) switch
         {
-            (PieceType.King, Color.White) => "♔",
-            (PieceType.Queen, Color.White) => "♕",
-            (PieceType.Rook, Color.White) => "♖",
-            (PieceType.Bishop, Color.White) => "♗",
-            (PieceType.Knight, Color.White) => "♘",
-            (PieceType.Pawn, Color.White) => "♙",
-            (PieceType.King, Color.Black) => "♚",
-            (PieceType.Queen, Color.Black) => "♛",
-            (PieceType.Rook, Color.Black) => "♜",
-            (PieceType.Bishop, Color.Black) => "♝",
-            (PieceType.Knight, Color.Black) => "♞",
-            (PieceType.Pawn, Color.Black) => "♟",
+            (PieceType.King, Color.White) => "♚",
+            (PieceType.Queen, Color.White) => "♛",
+            (PieceType.Rook, Color.White) => "♜",
+            (PieceType.Bishop, Color.White) => "♝",
+            (PieceType.Knight, Color.White) => "♞",
+            (PieceType.Pawn, Color.White) => "♟",
+            (PieceType.King, Color.Black) => "♔",
+            (PieceType.Queen, Color.Black) => "♕",
+            (PieceType.Rook, Color.Black) => "♖",
+            (PieceType.Bishop, Color.Black) => "♗",
+            (PieceType.Knight, Color.Black) => "♘",
+            (PieceType.Pawn, Color.Black) => "♙",
             _ => "?"
         };
     }

@@ -11,4 +11,11 @@ public readonly struct Position
         Column = column;
     }
 
+    public override string ToString()
+    {
+        char file = (char)('a' + Column);
+        int rank = 8 - Row;
+        return $"{file}{rank}";
+    }
+
 }
