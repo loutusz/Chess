@@ -351,18 +351,18 @@ public class ChessGameService
         }
 
         // Up
-        for (int r = position.Row - 1; r >= 0; r--)
+        for (int row = position.Row - 1; row >= 0; row--)
         {
-            Position target = new Position(r, position.Column);
+            Position target = new Position(row, position.Column);
             if (AddSlidingMove(moves, target, piece.Color))
             {
                 break;
             }
         }
         // Down
-        for (int r = position.Row + 1; r < 8; r++)
+        for (int row = position.Row + 1; row < 8; row++)
         {
-            Position target = new Position(r, position.Column);
+            Position target = new Position(row, position.Column);
             if (AddSlidingMove(moves, target, piece.Color))
             {
                 break;
@@ -608,9 +608,9 @@ public class ChessGameService
         Position kingPos = FindKing(color);
         Color enemyColor = OppositeColor(color);
 
-        for (var row = 0; row < 8; row++)
+        for (int row = 0; row < 8; row++)
         {
-            for (var col = 0; col < 8; col++)
+            for (int col = 0; col < 8; col++)
             {
                 Position pos = new Position(row, col);
                 ICell cell = GetCell(pos);
@@ -642,9 +642,9 @@ public class ChessGameService
 
     private bool PlayerHasAnyLegalMove(Color color)
     {
-        for (var row = 0; row < 8; row++)
+        for (int row = 0; row < 8; row++)
         {
-            for (var col = 0; col < 8; col++)
+            for (int col = 0; col < 8; col++)
             {
                 Position pos = new Position(row, col);
                 ICell cell = GetCell(pos);
@@ -682,9 +682,9 @@ public class ChessGameService
 
     private Position FindKing(Color color)
     {
-        for (var row = 0; row < 8; row++)
+        for (int row = 0; row < 8; row++)
         {
-            for (var col = 0; col < 8; col++)
+            for (int col = 0; col < 8; col++)
             {
                 ICell cell = _board.Cells[row, col];
                 if (cell.OccupiedPiece != null && cell.OccupiedPiece.Type == PieceType.King && cell.OccupiedPiece.Color == color)
@@ -701,9 +701,9 @@ public class ChessGameService
     {
         List<Piece> attackers = new List<Piece>();
 
-        for (var row = 0; row < 8; row++)
+        for (int row = 0; row < 8; row++)
         {
-            for (var col = 0; col < 8; col++)
+            for (int col = 0; col < 8; col++)
             {
                 Position pos = new Position(row, col);
                 ICell cell = GetCell(pos);
@@ -740,9 +740,9 @@ public class ChessGameService
         ICell[,] cells = new ICell[8, 8];
 
         // Initialize empty cells
-        for (var row = 0; row < 8; row++)
+        for (int row = 0; row < 8; row++)
         {
-            for (var col = 0; col < 8; col++)
+            for (int col = 0; col < 8; col++)
             {
                 cells[row, col] = new Cell(new Position(row, col), null, false);
             }

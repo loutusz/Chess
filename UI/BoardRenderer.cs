@@ -10,7 +10,7 @@ namespace Chess.UI;
 // Renders the chess board inside a bordered panel using Spectre.Console
 public static class BoardRenderer
 {
-    // Square background colors (classic chess board palette)
+    // Square background colors
     private static readonly SpectreColor LightSquare = new SpectreColor(240, 217, 181); // Cream
     private static readonly SpectreColor DarkSquare  = new SpectreColor(181, 136, 99);  // Brown
 

@@ -11,19 +11,19 @@ public static class Program
     public static void Main()
     {
         // Ask both players for their names
-        var (whiteName, blackName) = GameUI.AskPlayerNames();
+        (string whiteName, string blackName) = GameUI.AskPlayerNames();
 
-        var whitePlayer = new Player(whiteName, Color.White);
-        var blackPlayer = new Player(blackName, Color.Black);
+        Player whitePlayer = new Player(whiteName, Color.White);
+        Player blackPlayer = new Player(blackName, Color.Black);
 
-        var players = new Dictionary<IPlayer, Color>
+        Dictionary<IPlayer, Color> players = new Dictionary<IPlayer, Color>
         {
             { whitePlayer, Color.White },
             { blackPlayer, Color.Black }
         };
 
-        var emptyBoard = CreateEmptyBoard();
-        var game = new ChessGameService(emptyBoard, players, GameStatus.NotStarted);
+        IBoard emptyBoard = CreateEmptyBoard();
+        ChessGameService game = new ChessGameService(emptyBoard, players, GameStatus.NotStarted);
 
         game.StartGame();
 
@@ -79,7 +79,7 @@ public static class Program
 
     private static bool HandleMoveInput(ChessGameService game, string input)
     {
-        var parts = input.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string[] parts = input.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         if (parts.Length != 2)
         {
@@ -87,8 +87,8 @@ public static class Program
             return true;
         }
 
-        var from = AlgebraicNotation.Parse(parts[0]);
-        var to   = AlgebraicNotation.Parse(parts[1]);
+        Position? from = AlgebraicNotation.Parse(parts[0]);
+        Position? to   = AlgebraicNotation.Parse(parts[1]);
 
         if (from == null || to == null)
         {
@@ -113,7 +113,7 @@ public static class Program
 
     private static bool IsPromotionPending(ChessGameService game, Position to)
     {
-        var piece = game.GetCell(to).OccupiedPiece;
+        IPiece? piece = game.GetCell(to).OccupiedPiece;
         if (piece == null || piece.Type != PieceType.Pawn)
         {
             return false;
@@ -143,11 +143,11 @@ public static class Program
 
     private static IBoard CreateEmptyBoard()
     {
-        var cells = new ICell[8, 8];
+        ICell[,] cells = new ICell[8, 8];
 
-        for (var row = 0; row < 8; row++)
+        for (int row = 0; row < 8; row++)
         {
-            for (var col = 0; col < 8; col++)
+            for (int col = 0; col < 8; col++)
             {
                 cells[row, col] = new Cell(new Position(row, col), null, false);
             }

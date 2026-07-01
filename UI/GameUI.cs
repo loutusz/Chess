@@ -94,7 +94,7 @@ public static class GameUI
         }
     }
 
-    // Show the game over message inside a green bordered panel
+    // Show the game over message
     public static void ShowGameOver()
     {
         AnsiConsole.WriteLine();
@@ -110,7 +110,7 @@ public static class GameUI
 
     // ─── Move Input ───────────────────────────────────────────────────────────
 
-    // Show the move prompt inside a styled bordered panel and ask for input
+    // Show the move prompt and ask for input
     public static string? AskMove(string playerName, string playerColor)
     {
         AnsiConsole.Write(
@@ -121,17 +121,17 @@ public static class GameUI
         return AnsiConsole.Ask<string>("[grey]  >[/] Your move:");
     }
 
-    // Show a move error inside a panel styled to match the failure type
+    // Show a move error to match the failure type
     public static void ShowError(string message, MoveErrorType type)
     {
         var (header, borderColor) = type switch
         {
             MoveErrorType.NoPiece         => ("[bold red] ⬚  No Piece There [/]", SpectreColor.Red),
             MoveErrorType.OpponentPiece   => ("[bold red] 🚫  Not Your Piece [/]", SpectreColor.Red),
-            MoveErrorType.IllegalMove     => ("[bold red] ✗  Illegal Move [/]", SpectreColor.Red),
+            MoveErrorType.IllegalMove     => ("[bold red] x  Illegal Move [/]", SpectreColor.Red),
             MoveErrorType.OffBoard        => ("[bold red] ⚠  Off The Board [/]", SpectreColor.Red),
             MoveErrorType.GameNotInProgress => ("[bold red] ⏸  Game Not In Progress [/]", SpectreColor.Red),
-            _ => ("[bold red] ✗  Invalid Move [/]", SpectreColor.Red),
+            _ => ("[bold red] x  Invalid Move [/]", SpectreColor.Red),
         };
 
         ShowErrorPanel(message, header, borderColor);
@@ -140,7 +140,7 @@ public static class GameUI
     // Fallback for plain-string errors (e.g. pawn promotion failures)
     public static void ShowError(string message)
     {
-        ShowErrorPanel(message, "[bold red] ✗  Invalid Move [/]", SpectreColor.Red);
+        ShowErrorPanel(message, "[bold red] x  Invalid Move [/]", SpectreColor.Red);
     }
 
     // Pause after an error panel so the next loop's screen Clear() doesn't wipe it instantly
