@@ -69,18 +69,22 @@ public static class Program
                 continue;
             }
 
-            HandleMoveInput(game, input);
+            bool hadError = HandleMoveInput(game, input);
+            if (hadError)
+            {
+                GameUI.PauseForError();
+            }
         }
     }
 
-    private static void HandleMoveInput(ChessGameService game, string input)
+    private static bool HandleMoveInput(ChessGameService game, string input)
     {
         var parts = input.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         if (parts.Length != 2)
         {
             GameUI.ShowError("Please enter a move as two squares, e.g. 'e2 e4'.");
-            return;
+            return true;
         }
 
         var from = AlgebraicNotation.Parse(parts[0]);
@@ -89,20 +93,22 @@ public static class Program
         if (from == null || to == null)
         {
             GameUI.ShowError("Invalid square. Use file a-h and rank 1-8, e.g. 'e2'.");
-            return;
+            return true;
         }
 
-        string? error = game.MakeMove(from.Value, to.Value);
+        (string Message, MoveErrorType Type)? error = game.MakeMove(from.Value, to.Value);
         if (error != null)
         {
-            GameUI.ShowError(error);
-            return;
+            GameUI.ShowError(error.Value.Message, error.Value.Type);
+            return true;
         }
 
         if (IsPromotionPending(game, to.Value))
         {
-            HandlePromotion(game, to.Value);
+            return HandlePromotion(game, to.Value);
         }
+
+        return false;
     }
 
     private static bool IsPromotionPending(ChessGameService game, Position to)
@@ -116,7 +122,7 @@ public static class Program
         return piece.Color == Color.White ? to.Row == 0 : to.Row == 7;
     }
 
-    private static void HandlePromotion(ChessGameService game, Position pawnPosition)
+    private static bool HandlePromotion(ChessGameService game, Position pawnPosition)
     {
         PieceType newType = GameUI.AskPromotion();
 
@@ -124,7 +130,10 @@ public static class Program
         if (error != null)
         {
             GameUI.ShowError(error);
+            return true;
         }
+
+        return false;
     }
 
     private static bool IsGameOver(GameStatus status)

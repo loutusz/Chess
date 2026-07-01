@@ -454,18 +454,26 @@ public class ChessGameService
         return true; // Blocked by a piece, stop checking in this direction
     }
 
-    public bool ValidateMove(Position from, Position to)
+    // Returns null if the move is legal, otherwise the reason + a category
+    // the UI can use to pick a matching panel header/icon.
+    public (string Message, MoveErrorType Type)? ValidateMove(Position from, Position to)
     {
         if (!IsOnBoard(from) || !IsOnBoard(to))
         {
-            return false;
+            return ("That square is off the board.", MoveErrorType.OffBoard);
         }
 
         ICell cell = GetCell(from);
         IPiece? piece = cell.OccupiedPiece;
-        if (piece == null || piece.Color != CurrentPlayer.Color)
+
+        if (piece == null)
         {
-            return false;
+            return ("There's no piece on that square.", MoveErrorType.NoPiece);
+        }
+
+        if (piece.Color != CurrentPlayer.Color)
+        {
+            return ("You can't move your opponent's piece.", MoveErrorType.OpponentPiece);
         }
 
         List<Position> legalMoves = GetLegalMoves(from);
@@ -473,11 +481,11 @@ public class ChessGameService
         {
             if (move.Row == to.Row && move.Column == to.Column)
             {
-                return true;
+                return null;
             }
         }
 
-        return false;
+        return ($"That {piece.Type} can't move there.", MoveErrorType.IllegalMove);
     }
 
     public void ExecuteMove(Position from, Position to)
@@ -508,16 +516,17 @@ public class ChessGameService
         }
     }
 
-    public string? MakeMove(Position from, Position to)
+    public (string Message, MoveErrorType Type)? MakeMove(Position from, Position to)
     {
         if (_status != GameStatus.InProgress && _status != GameStatus.Check)
         {
-            return "Cannot make a move - the game is not in progress.";
+            return ("Cannot make a move - the game is not in progress.", MoveErrorType.GameNotInProgress);
         }
 
-        if (!ValidateMove(from, to))
+        (string Message, MoveErrorType Type)? validationError = ValidateMove(from, to);
+        if (validationError != null)
         {
-            return "Move is not legal.";
+            return validationError;
         }
 
         ExecuteMove(from, to);

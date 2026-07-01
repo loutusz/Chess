@@ -121,14 +121,42 @@ public static class GameUI
         return AnsiConsole.Ask<string>("[grey]  >[/] Your move:");
     }
 
-    // Show an error message inside a red bordered panel
+    // Show a move error inside a panel styled to match the failure type
+    public static void ShowError(string message, MoveErrorType type)
+    {
+        var (header, borderColor) = type switch
+        {
+            MoveErrorType.NoPiece         => ("[bold red] ⬚  No Piece There [/]", SpectreColor.Red),
+            MoveErrorType.OpponentPiece   => ("[bold red] 🚫  Not Your Piece [/]", SpectreColor.Red),
+            MoveErrorType.IllegalMove     => ("[bold red] ✗  Illegal Move [/]", SpectreColor.Red),
+            MoveErrorType.OffBoard        => ("[bold red] ⚠  Off The Board [/]", SpectreColor.Red),
+            MoveErrorType.GameNotInProgress => ("[bold red] ⏸  Game Not In Progress [/]", SpectreColor.Red),
+            _ => ("[bold red] ✗  Invalid Move [/]", SpectreColor.Red),
+        };
+
+        ShowErrorPanel(message, header, borderColor);
+    }
+
+    // Fallback for plain-string errors (e.g. pawn promotion failures)
     public static void ShowError(string message)
+    {
+        ShowErrorPanel(message, "[bold red] ✗  Invalid Move [/]", SpectreColor.Red);
+    }
+
+    // Pause after an error panel so the next loop's screen Clear() doesn't wipe it instantly
+    public static void PauseForError()
+    {
+        AnsiConsole.MarkupLine("[grey]  Press any key to continue...[/]");
+        Console.ReadKey(true);
+    }
+
+    private static void ShowErrorPanel(string message, string header, SpectreColor borderColor)
     {
         AnsiConsole.WriteLine();
 
         var panel = new Panel($"[red]{Escape(message)}[/]")
-            .Header("[bold red] ✗  Invalid Move [/]", Justify.Left)
-            .BorderColor(SpectreColor.Red)
+            .Header(header, Justify.Left)
+            .BorderColor(borderColor)
             .Border(BoxBorder.Rounded)
             .Padding(1, 0);
 

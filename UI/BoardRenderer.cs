@@ -84,24 +84,24 @@ public static class BoardRenderer
     // Converts a piece to its unicode chess symbol
     private static string ToSymbol(IPiece piece)
     {
-        if (piece.Color == PieceColor.Black)
-        {
+        // if (piece.Color == PieceColor.Black)
+        // {
             if (piece.Type == PieceType.King)   return "♚";
             if (piece.Type == PieceType.Queen)  return "♛";
             if (piece.Type == PieceType.Rook)   return "♜";
             if (piece.Type == PieceType.Bishop) return "♝";
             if (piece.Type == PieceType.Knight) return "♞";
             if (piece.Type == PieceType.Pawn)   return "♟";
-        }
-        else
-        {
-            if (piece.Type == PieceType.King)   return "♔";
-            if (piece.Type == PieceType.Queen)  return "♕";
-            if (piece.Type == PieceType.Rook)   return "♖";
-            if (piece.Type == PieceType.Bishop) return "♗";
-            if (piece.Type == PieceType.Knight) return "♘";
-            if (piece.Type == PieceType.Pawn)   return "♙";
-        }
+        // }
+        // else
+        // {
+        //     if (piece.Type == PieceType.King)   return "♔";
+        //     if (piece.Type == PieceType.Queen)  return "♕";
+        //     if (piece.Type == PieceType.Rook)   return "♖";
+        //     if (piece.Type == PieceType.Bishop) return "♗";
+        //     if (piece.Type == PieceType.Knight) return "♘";
+        //     if (piece.Type == PieceType.Pawn)   return "♙";
+        // }
         return "?";
     }
 
