@@ -2,6 +2,7 @@
 using Chess.Models;
 using Chess.Models.Enums;
 using Chess.Services;
+using Chess.UI;
 
 namespace Chess;
 
@@ -9,60 +10,48 @@ public static class Program
 {
     public static void Main()
     {
-        Console.WriteLine("========= Console Chess =========");
-        Console.Write("Enter name for White Player: ");
-
-        var whiteName = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(whiteName))
-        {
-            whiteName = "White Player";
-        }
-        
-        Console.Write("Enter name for Black Player: ");
-
-        var blackName = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(blackName))
-        {
-            blackName = "Black Player";
-        }
+        // Ask both players for their names
+        var (whiteName, blackName) = GameUI.AskPlayerNames();
 
         var whitePlayer = new Player(whiteName, Color.White);
         var blackPlayer = new Player(blackName, Color.Black);
 
-                var players = new Dictionary<IPlayer, Color>
+        var players = new Dictionary<IPlayer, Color>
         {
             { whitePlayer, Color.White },
             { blackPlayer, Color.Black }
         };
-        
+
         var emptyBoard = CreateEmptyBoard();
         var game = new ChessGameService(emptyBoard, players, GameStatus.NotStarted);
 
         game.StartGame();
-        Console.WriteLine("============= RULES =============");
-        Console.WriteLine("Enter moves like: e2 e4");
-        Console.WriteLine("Type 'resign' to resign.");
-        Console.WriteLine("Type 'quit' to exit.");
-        Console.WriteLine("=================================");
 
-        RunGameLoop(game);
+        GameUI.ShowRules();
+
+        RunGameLoop(game, whiteName, blackName);
     }
 
-    private static void RunGameLoop(ChessGameService game)
+    private static void RunGameLoop(ChessGameService game, string whiteName, string blackName)
     {
         while (true)
         {
-            BoardRenderer.Print(game.GetBoard());
-            PrintStatusLine(game);
+            // Clear the screen before each turn so the layout stays clean
+            Spectre.Console.AnsiConsole.Clear();
 
+            // Draw the board and show any status messages
+            BoardRenderer.Print(game.GetBoard(), whiteName, blackName);
+            GameUI.ShowStatus(game);
+
+            // Check if the game is over
             if (IsGameOver(game.Status))
             {
-                Console.WriteLine("Game over. Thanks for playing!");
+                GameUI.ShowGameOver();
                 return;
             }
 
-            Console.Write($"{game.CurrentPlayer.Name} ({game.CurrentPlayer.Color}), enter your move: ");
-            var input = Console.ReadLine();
+            // Ask the current player for their move
+            string? input = GameUI.AskMove(game.CurrentPlayer.Name, game.CurrentPlayer.Color.ToString());
 
             if (string.IsNullOrWhiteSpace(input))
             {
@@ -71,7 +60,6 @@ public static class Program
 
             if (input.Trim().Equals("quit", StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine("Exiting.");
                 return;
             }
 
@@ -91,31 +79,29 @@ public static class Program
 
         if (parts.Length != 2)
         {
-            Console.WriteLine("Please enter a move as two squares, e.g. 'e2 e4'.");
+            GameUI.ShowError("Please enter a move as two squares, e.g. 'e2 e4'.");
             return;
         }
 
         var from = AlgebraicNotation.Parse(parts[0]);
-        var to = AlgebraicNotation.Parse(parts[1]);
+        var to   = AlgebraicNotation.Parse(parts[1]);
 
         if (from == null || to == null)
         {
-            Console.WriteLine("Invalid square. Use file a-h and rank 1-8, e.g. 'e2'.");
+            GameUI.ShowError("Invalid square. Use file a-h and rank 1-8, e.g. 'e2'.");
             return;
         }
 
-        try
+        string? error = game.MakeMove(from.Value, to.Value);
+        if (error != null)
         {
-            game.MakeMove(from.Value, to.Value);
-
-            if (IsPromotionPending(game, to.Value))
-            {
-                PromptForPromotion(game, to.Value);
-            }
+            GameUI.ShowError(error);
+            return;
         }
-        catch (InvalidOperationException ex)
+
+        if (IsPromotionPending(game, to.Value))
         {
-            Console.WriteLine($"Illegal move: {ex.Message}");
+            HandlePromotion(game, to.Value);
         }
     }
 
@@ -130,40 +116,14 @@ public static class Program
         return piece.Color == Color.White ? to.Row == 0 : to.Row == 7;
     }
 
-    private static void PromptForPromotion(ChessGameService game, Position pawnPosition)
+    private static void HandlePromotion(ChessGameService game, Position pawnPosition)
     {
-        while (true)
+        PieceType newType = GameUI.AskPromotion();
+
+        string? error = game.PromotePawn(pawnPosition, newType);
+        if (error != null)
         {
-            Console.Write("Pawn promotion! Choose Queen, Rook, Bishop, or Knight: ");
-            var choice = Console.ReadLine();
-
-            if (Enum.TryParse<PieceType>(choice?.Trim(), ignoreCase: true, out var newType)
-                && newType is PieceType.Queen or PieceType.Rook or PieceType.Bishop or PieceType.Knight)
-            {
-                game.PromotePawn(pawnPosition, newType);
-                return;
-            }
-
-            Console.WriteLine("Please type one of: Queen, Rook, Bishop, Knight.");
-        }
-    }
-
-    private static void PrintStatusLine(ChessGameService game)
-    {
-        switch (game.Status)
-        {
-            case GameStatus.Check:
-                Console.WriteLine($">>> {game.CurrentPlayer.Name} is in CHECK! <<<");
-                break;
-            case GameStatus.Checkmate:
-                Console.WriteLine($">>> CHECKMATE - {game.CurrentPlayer.Name} has no legal moves. <<<");
-                break;
-            case GameStatus.Draw:
-                Console.WriteLine(">>> DRAW (stalemate). <<<");
-                break;
-            case GameStatus.Resigned:
-                Console.WriteLine(">>> Game ended by resignation. <<<");
-                break;
+            GameUI.ShowError(error);
         }
     }
 
